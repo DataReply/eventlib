@@ -19,7 +19,9 @@ setup(
     install_requires =
     ['pykafka== 2.3.1', 'fastavro==0.9.9'," avro == 1.8.0","avro-python3 == 1.8.0"]
    ,
-
+    setup_requires =
+    ['pykafka== 2.3.1', 'fastavro==0.9.9'," avro == 1.8.0","avro-python3 == 1.8.0"]
+   ,
     # metadata for upload to PyPI
     author = 'Data Reply',
     description = 'Asyncio Kafka Event library',
