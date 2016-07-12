@@ -118,7 +118,7 @@ def start_producer(topic, brokers,registry=None):
     producers[topic] = topic_handle.get_producer()
 
     if registry!=None:
-       _ = registry_client(registry)
+       _ = create_registry_client(registry)
 
 
 async def stop_producer(topic):
