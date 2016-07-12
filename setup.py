@@ -17,10 +17,10 @@ setup(
     packages = ['eventlib',
                 'eventlib.schemaregistry'],
     install_requires =
-    ['pykafka== 2.3.1', 'fastavro==0.9.9'," avro == 1.8.0","avro-python3 == 1.8.0"]
+    ['pykafka== 2.3.1', "avro-python3 == 1.8.0"]
    ,
     setup_requires =
-    ['pykafka== 2.3.1', 'fastavro==0.9.9'," avro == 1.8.0","avro-python3 == 1.8.0"]
+    ['pykafka== 2.3.1', "avro-python3 == 1.8.0"]
    ,
     # metadata for upload to PyPI
     author = 'Data Reply',
