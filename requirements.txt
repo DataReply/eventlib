@@ -1,0 +1,5 @@
+fastavro
+cython
+avro
+avro-python3
+confluent-kafka
