@@ -16,7 +16,6 @@ setup(
     packages = ['eventlib',
                 'eventlib.schemaregistry'],
     install_requires = [
-        "autobahn",
         "pykafka",
         "avro-python3"
 
