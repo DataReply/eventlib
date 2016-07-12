@@ -15,7 +15,10 @@ setup(
     name = 'eventlib',
     version = version,
     packages = ['eventlib',
-                'eventlib.schemaregistry'],
+                'eventlib.schemaregistry',
+                'eventlib.schemaregistry.client',
+                'eventlib.schemaregistry.serializers'
+                ],
     install_requires =
     ['pykafka== 2.3.1', "avro-python3 == 1.8.0"]
    ,
