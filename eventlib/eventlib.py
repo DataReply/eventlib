@@ -49,8 +49,8 @@ def create_registry_client(registry=None):
     global registry_serializer
     if not registry_client:
         if not registry:
-            registry = os.environ.get('SCHEMA_REGISTRY', '127.0.0.1')
-        registry_client = CachedSchemaRegistryClient(url='http://localhost:8081')
+            registry = os.environ.get('SCHEMA_REGISTRY', 'http://localhost:8081')
+        registry_client = CachedSchemaRegistryClient(url=registry)
         registry_serializer = MessageSerializer(registry_client)
     return registry_client,registry_serializer
 
@@ -114,6 +114,7 @@ def start_producer(topic, brokers,registry=None):
     """
     Start an event producer in the background.
     """
+    topic = topic.encode('utf-8')
     topic_handle = client(brokers).topics[topic]
     producers[topic] = topic_handle.get_producer()
 
@@ -126,6 +127,7 @@ async def stop_producer(topic):
     Stop the producer associated to the
     given topic.
     """
+    topic = topic.encode('utf-8')
     if topic in producers:
         producer = producers.get(topic, None)
         producer.stop()
@@ -137,6 +139,8 @@ async def send_event(topic, event,schema=None):
     producer exists for this topic, a :exc:`RuntimeError`
     is raised.
     """
+    topic_dec = topic
+    topic = topic.encode('utf-8')
     if topic not in producers:
         raise RuntimeError("No event senders initialized for '%s'" % topic)
 
@@ -145,7 +149,7 @@ async def send_event(topic, event,schema=None):
 
     if isinstance(event, dict):
         if schema:
-            event = registry_serializer.encode_record_with_schema(topic,schema,event)
+            event = registry_serializer.encode_record_with_schema(topic_dec,schema,event)
         else:
             event = json.dumps(event).encode('utf-8')
 
