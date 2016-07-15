@@ -15,14 +15,10 @@ __all__ = ["consume_events",
            "send_event", "start_producer",
            "stop_producer"]
 
-consumer_running = None
-kafka_client = None
 registry_client = None
 registry_serializer = None
 consumers = {}
-producers = {}
-schema ={}
-
+producer = None
 
 def create_registry_client(registry=None):
     """
