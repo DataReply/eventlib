@@ -41,6 +41,7 @@ async def consume_events(topic, group, brokers, callback, schema=None,registry=N
     The given callback is applied on each
     message.
     """    
+    global consumer
     if topic in consumers:
         raise RuntimeError("A consumer already exists for topic: %s" % topic)
 
@@ -81,6 +82,7 @@ async def stop_consuming_events(topic):
     The consumer will properly terminate at its
     next iteration.
     """
+    global consumer
     if topic and topic in consumers:
         consumer = consumers[topic]
         consumer.close()
@@ -92,6 +94,7 @@ def start_producer(topic, brokers,registry=None):
     """
     Start an event producer in the background.
     """
+    global producer
     producer = Producer({'bootstrap.servers': brokers})
 
     if registry!=None:
@@ -103,6 +106,7 @@ async def stop_producer():
     Stop the producer associated to the
     given topic.
     """
+    global producer
     producer.stop()
 
 
@@ -112,6 +116,7 @@ async def send_event(topic, event,schema=None):
     producer exists for this topic, a :exc:`RuntimeError`
     is raised.
     """
+    global producer
     if not producer:
         raise RuntimeError("No event senders initialized for '%s'" % topic)
 
