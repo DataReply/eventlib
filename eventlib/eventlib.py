@@ -7,7 +7,7 @@ import json
 import uuid
 from .schemaregistry.client import CachedSchemaRegistryClient
 from .schemaregistry.serializers import MessageSerializer, Util
-from confluent_kafka import Producer, Consumer
+from confluent_kafka import Producer, Consumer,KafkaException
 import os
 
 __all__ = ["consume_events",
@@ -18,7 +18,7 @@ __all__ = ["consume_events",
 registry_client = None
 registry_serializer = None
 consumers = {}
-producer = None
+producers = {}
 
 def create_registry_client(registry=None):
     """
@@ -50,24 +50,26 @@ async def consume_events(topic, group, brokers, callback, schema=None,registry=N
 
 
     consumer = Consumer({'bootstrap.servers': brokers, 'group.id': group,
-              'default.topic.config': {'auto.offset.reset': 'smallest'}})
-    consumers[topic] = consumer
+              'default.topic.config': {'auto.offset.reset': 'largest'}})
     consumer.subscribe([topic])
+    consumers[topic] = consumer
+
 
     try:
         while True:
-            message = consumer.poll()
-            if not message.error():
-                if registry:
-                    message = serializer.decode_message(message.value())
-                else:
-                    message = message.value().decode('utf-8')
+            message = consumer.poll(1)
+            if message:
+               if not message.error():
+                   if registry:
+                       message = serializer.decode_message(message.value())
+                   else:
+                       message = message.value()
 
-                await callback(message)
-                consumer.commit()
+                   await callback(message)
+                   consumer.commit()
             else:
-                await asyncio.sleep(delay)
-    except ConsumerStoppedException:
+                   await asyncio.sleep(delay)
+    except KafkaException as ex:
         pass
     else:
         consumer.close()
@@ -94,8 +96,8 @@ def start_producer(topic, brokers,registry=None):
     """
     Start an event producer in the background.
     """
-    global producer
-    producer = Producer({'bootstrap.servers': brokers})
+    global producers
+    producers[topic]  = Producer({'bootstrap.servers': brokers})
 
     if registry!=None:
        _ = create_registry_client(registry)
@@ -116,8 +118,9 @@ async def send_event(topic, event,schema=None):
     producer exists for this topic, a :exc:`RuntimeError`
     is raised.
     """
-    global producer
-    if not producer:
+    global producers
+    producer = producers[topic]
+    if producer==None:
         raise RuntimeError("No event senders initialized for '%s'" % topic)
 
     if (not registry_serializer or not registry_client) and schema:
@@ -125,9 +128,10 @@ async def send_event(topic, event,schema=None):
 
     if isinstance(event, dict):
         if schema:
-            event = registry_serializer.encode_record_with_schema(topic_dec,schema,event)
+            event = registry_serializer.encode_record_with_schema(topic,schema,event)
         else:
             event = json.dumps(event).encode('utf-8')
-
+    #,on_delivery=lambda a,b:(a,b)
     producer.produce(topic, event)
-    # producer.flush()
+    print("wrote")
+    #producer.flush()

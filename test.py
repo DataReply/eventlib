@@ -17,23 +17,16 @@ async def consume_test( payload):
 
 import asyncio
 
-@asyncio.coroutine
-def chain(obj, *funcs):
-    for f, *args in funcs:
-        meth = getattr(obj, f)  # Look up the method on the object
-        obj = yield from meth(*args)
-    return obj
-
-
-start_producer(topic=b"test",brokers="localhost:9092")
+ 
+start_producer(topic="test",brokers="localhost:9092")
 
 
 
 
 
-asyncio.ensure_future(consume_events(b"test",b"test-group","localhost:9092",consume_test))
+asyncio.ensure_future(consume_events("test","test-group","localhost:9092",consume_test))
 
 for i in range(10):
-    asyncio.ensure_future(send_event(b"test",{"test":"test"}))
+    asyncio.ensure_future(send_event("test",{"test":"test"}))
 
 asyncio.get_event_loop().run_forever()
