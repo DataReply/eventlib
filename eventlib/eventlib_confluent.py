@@ -1,7 +1,7 @@
 import logging
 
 from .schemaregistry.client import CachedSchemaRegistryClient
-from confluent_kafka.avro.serializer import SerializerError
+from .schemaregistry.serializers import SerializerError
 from .schemaregistry.serializers import MessageSerializer
 
 log = logging.getLogger(__name__)
